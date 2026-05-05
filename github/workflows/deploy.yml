@@ -1,0 +1,14 @@
+name: Deploy Trigger
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Deployment Webhook
+        run: |
+          curl -X GET "http://91.99.224.241:3000/api/deploy/a984b2f4a1714f151fad581d1a4484258379245a2e9b72e0"

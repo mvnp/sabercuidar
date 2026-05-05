@@ -463,3 +463,18 @@ export type MedicationAdministration =
   typeof medicationAdministrations.$inferSelect;
 export type NewMedicationAdministration =
   typeof medicationAdministrations.$inferInsert;
+// =============================================================
+//  EMPRESAS (PUBLIC SCHEMA)
+// =============================================================
+
+export const empresas = pgTable("empresas", {
+  cnpjBasico: text("cnpj_basico").primaryKey(),
+  razaoSocial: text("razao_social").notNull(),
+  naturezaJuridica: text("natureza_juridica").notNull(),
+  qualificacaoResponsavel: text("qualificacao_responsavel").notNull(),
+  capitalSocial: text("capital_social").notNull(),
+  porteEmpresa: text("porte_empresa").notNull(),
+  enteFederativo: text("ente_federativo").notNull(),
+});
+
+export type Empresa = typeof empresas.$inferSelect;

@@ -118,9 +118,9 @@ sabercuidar/
 - Especialidades e CRM/COREN
 
 ### 5. Receita Federal (Integração)
-- Consulta de CPF de pacientes e profissionais
-- Consulta de CNPJ de clínicas e fornecedores
-- Validação e enriquecimento de dados cadastrais
+- Consulta de CNPJ de empresas na tabela `public.empresas`
+- Mapeamento de colunas disponível em `src/db/empresas_schema.md`
+- Paginação de alta performance para tabelas com grande volume de dados
 
 ### 6. Inteligência Artificial (Futuro)
 - Análise de prontuários e sugestões clínicas
