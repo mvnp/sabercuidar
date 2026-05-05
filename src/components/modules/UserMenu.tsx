@@ -15,7 +15,7 @@ interface UserMenuProps {
     name: string;
     email: string;
     role: string;
-    avatar: string;
+    avatarUrl: string;
   };
 }
 
@@ -49,7 +49,7 @@ export default function UserMenu({ user }: UserMenuProps) {
         </div>
         <div className="w-9 h-9 rounded-full border-2 border-[var(--color-brand-200)] p-0.5 overflow-hidden bg-[var(--color-brand-100)] group-hover:border-[var(--color-brand-400)] transition-colors relative">
           <Image 
-            src={user.avatar} 
+            src={user.avatarUrl} 
             alt="Avatar" 
             width={36}
             height={36}

@@ -24,7 +24,8 @@ export async function getEmpresas(page: number = 1, pageSize: number = 25) {
     `);
     
     // Fallback para count se a estimativa falhar ou for 0 (tabela pequena)
-    let total = Number((estimateResult[0] as any)?.estimate || 0);
+    const estimate = (estimateResult[0] as { estimate: string | number | null })?.estimate;
+    let total = Number(estimate || 0);
     
     if (total === 0) {
       const totalResult = await db.select({ value: count() }).from(empresas);

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { toggleSidebarAction } from "@/actions/ui";
-import SidebarToggle from "@/components/ui/SidebarToggle";
 import { 
   Heart, 
   Search, 
@@ -18,7 +17,12 @@ import { logoutAction } from "@/actions/auth";
 interface DashboardShellProps {
   children: React.ReactNode;
   initialCollapsed: boolean;
-  user: any;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    avatarUrl?: string | null;
+  };
 }
 
 export default function DashboardShell({ 

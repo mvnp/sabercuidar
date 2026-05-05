@@ -12,10 +12,11 @@ export async function getAuthSession() {
   // Em um cenário real, validaríamos o JWT ou buscaríamos no banco.
   return {
     user: {
+      id: "mock-admin-id",
       name: "Dra. Ana Silva",
       email: "admin@sabercuidar.com.br",
       role: "admin",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana",
+      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana",
     },
   };
 }
