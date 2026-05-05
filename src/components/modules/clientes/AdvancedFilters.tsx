@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Filter, X, Search, Loader2, MapPin, Hash, Plus, Bookmark, Check } from "lucide-react";
-import { getEmpresasAvancado, getMunicipios, getCnaes } from "@/actions/empresas";
+import { getEmpresasAvancado, getMunicipios } from "@/actions/empresas";
 import SaveSearchModal from "./SaveSearchModal";
 
 interface Item {
@@ -10,8 +10,22 @@ interface Item {
   descricao: string;
 }
 
+interface Pagination {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
+interface Empresa {
+  cnpjBasico: string;
+  razaoSocial: string;
+  porteEmpresa: string;
+  capitalSocial: string;
+}
+
 interface AdvancedFiltersProps {
-  onSearch: (data: any[], pagination: any, filters: any) => void;
+  onSearch: (data: Empresa[], pagination: Pagination, filters: { cnaes: string; municipios: string; onlyWithFantasyName: boolean }) => void;
 }
 
 export default function AdvancedFilters({ onSearch }: AdvancedFiltersProps) {
@@ -58,7 +72,7 @@ export default function AdvancedFilters({ onSearch }: AdvancedFiltersProps) {
       };
       
       const result = await getEmpresasAvancado(filters);
-      onSearch(result.data, result.pagination, filters);
+      onSearch(result.data as Empresa[], result.pagination as Pagination, filters);
       setIsOpen(false);
     } catch (error) {
       console.error(error);
@@ -163,7 +177,7 @@ export default function AdvancedFilters({ onSearch }: AdvancedFiltersProps) {
                     <MapPin className="w-4 h-4 text-[var(--color-brand-500)]" />
                     Cidades (Municípios)
                   </label>
-                  <span className="text-[10px] font-bold text-[var(--color-brand-500)] bg-[var(--color-brand-50)] px-2 py-0.5 rounded-full uppercase">
+                  <span className="text-[10px] font-bold text-[var(--color-brand-50)] bg-[var(--color-brand-50)] px-2 py-0.5 rounded-full uppercase">
                     {selectedMunicipios.length} selecionadas
                   </span>
                 </div>
@@ -216,7 +230,7 @@ export default function AdvancedFilters({ onSearch }: AdvancedFiltersProps) {
                     <Hash className="w-4 h-4 text-[var(--color-brand-500)]" />
                     Atividades Econômicas (CNAEs)
                   </label>
-                  <span className="text-[10px] font-bold text-[var(--color-brand-500)] bg-[var(--color-brand-50)] px-2 py-0.5 rounded-full uppercase">
+                  <span className="text-[10px] font-bold text-[var(--color-brand-50)] bg-[var(--color-brand-50)] px-2 py-0.5 rounded-full uppercase">
                     {selectedCnaes.length} selecionados
                   </span>
                 </div>

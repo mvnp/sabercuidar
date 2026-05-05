@@ -7,46 +7,59 @@ import {
   Search,
   MoreHorizontal,
   Loader2,
-  Filter,
   Layers,
   ExternalLink
 } from "lucide-react";
-import Link from "next/link";
 import AdvancedFilters from "./AdvancedFilters";
 import SavedSearchesModal from "./SavedSearchesModal";
 import { getEmpresasAvancado, getEmpresas } from "@/actions/empresas";
 
+interface Empresa {
+  cnpjBasico: string;
+  razaoSocial: string;
+  porteEmpresa: string;
+  capitalSocial: string;
+}
+
+interface Pagination {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
 interface ClientesTableProps {
-  initialData: any[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-  };
+  initialData: Empresa[];
+  pagination: Pagination;
+}
+
+interface Filters {
+  cnaes: string;
+  municipios: string;
+  onlyWithFantasyName: boolean;
 }
 
 export default function ClientesTable({ initialData, pagination: initialPagination }: ClientesTableProps) {
-  const [data, setData] = useState(initialData);
+  const [data, setData] = useState<Empresa[]>(initialData);
   const [isFiltered, setIsFiltered] = useState(false);
-  const [pagination, setPagination] = useState(initialPagination);
-  const [activeFilters, setActiveFilters] = useState<{ cnaes?: string; municipios?: string; onlyWithFantasyName?: boolean } | null>(null);
+  const [pagination, setPagination] = useState<Pagination>(initialPagination);
+  const [activeFilters, setActiveFilters] = useState<Filters | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [pageSize, setPageSize] = useState(initialPagination.pageSize);
 
-  const handleAdvancedSearch = (results: any[], newPagination: any, filters: any) => {
+  const handleAdvancedSearch = (results: Empresa[], newPagination: Pagination, filters: Filters) => {
     setData(results);
     setIsFiltered(true);
     setPagination(newPagination);
     setActiveFilters(filters);
   };
 
-  const handleSavedSearchSelect = async (filters: any) => {
+  const handleSavedSearchSelect = async (filters: Filters) => {
     setIsLoading(true);
     try {
       const result = await getEmpresasAvancado({ ...filters, page: 1, pageSize });
-      setData(result.data);
-      setPagination(result.pagination);
+      setData(result.data as Empresa[]);
+      setPagination(result.pagination as Pagination);
       setIsFiltered(true);
       setActiveFilters(filters);
     } catch (error) {
@@ -66,8 +79,8 @@ export default function ClientesTable({ initialData, pagination: initialPaginati
       } else {
         result = await getEmpresas(1, newSize);
       }
-      setData(result.data);
-      setPagination(result.pagination);
+      setData(result.data as Empresa[]);
+      setPagination(result.pagination as Pagination);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       console.error(error);
@@ -91,8 +104,8 @@ export default function ClientesTable({ initialData, pagination: initialPaginati
       } else {
         result = await getEmpresas(newPage, pageSize);
       }
-      setData(result.data);
-      setPagination(result.pagination);
+      setData(result.data as Empresa[]);
+      setPagination(result.pagination as Pagination);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       console.error(error);
@@ -151,8 +164,8 @@ export default function ClientesTable({ initialData, pagination: initialPaginati
               setIsLoading(true);
               try {
                 const result = await getEmpresas(1, 100);
-                setData(result.data);
-                setPagination(result.pagination);
+                setData(result.data as Empresa[]);
+                setPagination(result.pagination as Pagination);
                 setIsFiltered(false);
                 setActiveFilters(null);
                 setPageSize(100);

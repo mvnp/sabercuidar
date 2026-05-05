@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Bookmark, X, Search, Trash2, Loader2, Play } from "lucide-react";
+import { Bookmark, X, Trash2, Loader2, Play } from "lucide-react";
 import { getSavedSearchesAction, deleteSavedSearchAction } from "@/actions/empresas";
 
 interface SavedSearch {
@@ -11,8 +11,14 @@ interface SavedSearch {
   createdAt: Date;
 }
 
+interface Filters {
+  cnaes: string;
+  municipios: string;
+  onlyWithFantasyName: boolean;
+}
+
 interface SavedSearchesModalProps {
-  onSelect: (filters: any) => void;
+  onSelect: (filters: Filters) => void;
 }
 
 export default function SavedSearchesModal({ onSelect }: SavedSearchesModalProps) {
@@ -23,7 +29,7 @@ export default function SavedSearchesModal({ onSelect }: SavedSearchesModalProps
   const loadSearches = async () => {
     setIsLoading(true);
     const data = await getSavedSearchesAction();
-    setSearches(data as any);
+    setSearches(data as SavedSearch[]);
     setIsLoading(false);
   };
 
@@ -42,7 +48,7 @@ export default function SavedSearchesModal({ onSelect }: SavedSearchesModalProps
   };
 
   const handleSelect = (search: SavedSearch) => {
-    const filters = JSON.parse(search.filters);
+    const filters = JSON.parse(search.filters) as Filters;
     onSelect(filters);
     setIsOpen(false);
   };
