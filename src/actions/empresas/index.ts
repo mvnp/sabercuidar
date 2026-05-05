@@ -173,7 +173,7 @@ export async function getCnaes(search?: string) {
   }
 }
 
-export async function saveSearchAction(name: string, filters: { cnaes?: string; municipios?: string }) {
+export async function saveSearchAction(name: string, filters: { cnaes?: string; municipios?: string; onlyWithFantasyName?: boolean }) {
   try {
     const session = await getAuthSession();
     if (!session) return { error: "Não autorizado." };
@@ -185,8 +185,33 @@ export async function saveSearchAction(name: string, filters: { cnaes?: string; 
     });
 
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error saving search:", error);
+    
+    // Auto-create table if missing
+    if (error.message?.includes('relation "sabercuidar.saved_searches" does not exist')) {
+        try {
+            await db.execute(sql`
+                CREATE TABLE IF NOT EXISTS sabercuidar.saved_searches (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    user_id UUID NOT NULL REFERENCES sabercuidar.users(id) ON DELETE CASCADE,
+                    name VARCHAR(255) NOT NULL,
+                    filters TEXT NOT NULL,
+                    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+                );
+            `);
+            // Retry once
+            await db.insert(savedSearches).values({
+                userId: session.user.id,
+                name,
+                filters: JSON.stringify(filters),
+            });
+            return { success: true };
+        } catch (innerError) {
+            console.error("Failed to auto-create table:", innerError);
+        }
+    }
+    
     return { error: "Erro ao salvar busca." };
   }
 }
@@ -201,8 +226,26 @@ export async function getSavedSearchesAction() {
       .from(savedSearches)
       .where(eq(savedSearches.userId, session.user.id))
       .orderBy(desc(savedSearches.createdAt));
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching saved searches:", error);
+    
+    // Auto-create table if missing
+    if (error.message?.includes('relation "sabercuidar.saved_searches" does not exist')) {
+        try {
+            await db.execute(sql`
+                CREATE TABLE IF NOT EXISTS sabercuidar.saved_searches (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    user_id UUID NOT NULL REFERENCES sabercuidar.users(id) ON DELETE CASCADE,
+                    name VARCHAR(255) NOT NULL,
+                    filters TEXT NOT NULL,
+                    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+                );
+            `);
+            return [];
+        } catch (innerError) {
+            console.error("Failed to auto-create table:", innerError);
+        }
+    }
     return [];
   }
 }
