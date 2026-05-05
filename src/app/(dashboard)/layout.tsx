@@ -15,6 +15,7 @@ import {
   Menu
 } from "lucide-react";
 import { logoutAction } from "@/actions/auth";
+import UserMenu from "@/components/modules/UserMenu";
 
 export default async function DashboardLayout({
   children,
@@ -124,24 +125,7 @@ export default async function DashboardLayout({
             
             <div className="h-8 w-px bg-[var(--color-border)] mx-1"></div>
 
-            <div className="flex items-center gap-3 pl-1">
-              <div className="hidden md:block text-right">
-                <div className="text-sm font-semibold text-[var(--color-brand-900)] leading-none mb-0.5">
-                  {session.user.name}
-                </div>
-                <div className="text-[10px] font-medium text-[var(--color-brand-600)] uppercase tracking-wider">
-                  {session.user.role}
-                </div>
-              </div>
-              <div className="w-9 h-9 rounded-full border-2 border-[var(--color-brand-200)] p-0.5 overflow-hidden bg-[var(--color-brand-100)]">
-                <img 
-                  src={session.user.avatar} 
-                  alt="Avatar" 
-                  className="w-full h-full rounded-full object-cover"
-                />
-              </div>
-              <ChevronDown className="w-4 h-4 text-[var(--color-text-light)] hidden md:block" />
-            </div>
+            <UserMenu user={session.user} />
           </div>
         </header>
 
