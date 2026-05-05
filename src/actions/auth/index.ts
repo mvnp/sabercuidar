@@ -3,6 +3,10 @@
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { db } from "@/db";
+import { users } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 
 const loginSchema = z.object({
   email: z.string().email("E-mail inválido"),
@@ -22,24 +26,54 @@ export async function loginAction(prevState: unknown, formData: FormData) {
     };
   }
 
-  // --- Mock Authentication ---
-  // Em um cenário real, consultaríamos o banco de dados (users table) e verificaríamos o hash.
-  // Por enquanto, aceitaremos qualquer login para facilitar o desenvolvimento do dashboard.
-  if (email === "admin@sabercuidar.com.br" && password === "123456") {
+  try {
+    // 1. Busca o usuário pelo e-mail
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    if (!user) {
+      return {
+        message: "Credenciais inválidas.",
+      };
+    }
+
+    // 2. Verifica se o usuário está ativo
+    if (!user.active) {
+      return {
+        message: "Esta conta está desativada.",
+      };
+    }
+
+    // 3. Compara a senha com o hash no banco
+    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+
+    if (!passwordMatch) {
+      return {
+        message: "Credenciais inválidas.",
+      };
+    }
+
+    // 4. Se tudo estiver correto, cria a sessão (token mockado com o ID do usuário por enquanto)
     const cookieStore = await cookies();
-    cookieStore.set("auth_token", "mock-token-123", {
+    cookieStore.set("auth_token", user.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 24, // 1 dia
       path: "/",
     });
 
-    redirect("/dashboard");
-  } else {
+  } catch (error) {
+    console.error("Login error:", error);
     return {
-      message: "Credenciais inválidas. Tente admin@sabercuidar.com.br / 123456",
+      message: "Ocorreu um erro ao processar o login.",
     };
   }
+
+  // Redirect deve ser fora do try/catch no Next.js
+  redirect("/dashboard");
 }
 
 export async function logoutAction() {
