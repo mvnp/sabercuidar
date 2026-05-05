@@ -10,28 +10,35 @@ import {
   decimal,
   pgEnum,
   index,
+  pgSchema,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+
+// =============================================================
+//  SCHEMA DEFINITION
+// =============================================================
+
+export const sabercuidarSchema = pgSchema("sabercuidar");
 
 // =============================================================
 //  ENUMS
 // =============================================================
 
-export const userRoleEnum = pgEnum("user_role", [
+export const userRoleEnum = sabercuidarSchema.enum("user_role", [
   "admin",
   "coordinator",
   "professional",
   "viewer",
 ]);
 
-export const genderEnum = pgEnum("gender", [
+export const genderEnum = sabercuidarSchema.enum("gender", [
   "masculino",
   "feminino",
   "outro",
   "nao_informado",
 ]);
 
-export const patientStatusEnum = pgEnum("patient_status", [
+export const patientStatusEnum = sabercuidarSchema.enum("patient_status", [
   "ativo",
   "inativo",
   "alta",
@@ -39,7 +46,7 @@ export const patientStatusEnum = pgEnum("patient_status", [
   "suspeso",
 ]);
 
-export const professionalTypeEnum = pgEnum("professional_type", [
+export const professionalTypeEnum = sabercuidarSchema.enum("professional_type", [
   "medico",
   "enfermeiro",
   "fisioterapeuta",
@@ -52,7 +59,7 @@ export const professionalTypeEnum = pgEnum("professional_type", [
   "outro",
 ]);
 
-export const visitStatusEnum = pgEnum("visit_status", [
+export const visitStatusEnum = sabercuidarSchema.enum("visit_status", [
   "agendada",
   "em_andamento",
   "concluida",
@@ -60,7 +67,7 @@ export const visitStatusEnum = pgEnum("visit_status", [
   "nao_realizada",
 ]);
 
-export const medicationRouteEnum = pgEnum("medication_route", [
+export const medicationRouteEnum = sabercuidarSchema.enum("medication_route", [
   "oral",
   "subcutanea",
   "intravenosa",
@@ -73,7 +80,7 @@ export const medicationRouteEnum = pgEnum("medication_route", [
   "outro",
 ]);
 
-export const prescriptionStatusEnum = pgEnum("prescription_status", [
+export const prescriptionStatusEnum = sabercuidarSchema.enum("prescription_status", [
   "ativa",
   "suspensa",
   "concluida",
@@ -84,7 +91,7 @@ export const prescriptionStatusEnum = pgEnum("prescription_status", [
 //  USUÁRIOS DO SISTEMA
 // =============================================================
 
-export const users = pgTable(
+export const users = sabercuidarSchema.table(
   "users",
   {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -104,7 +111,7 @@ export const users = pgTable(
 //  PROFISSIONAIS DE SAÚDE
 // =============================================================
 
-export const professionals = pgTable(
+export const professionals = sabercuidarSchema.table(
   "professionals",
   {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -134,7 +141,7 @@ export const professionals = pgTable(
 //  PACIENTES (FICHA MÉDICA)
 // =============================================================
 
-export const patients = pgTable(
+export const patients = sabercuidarSchema.table(
   "patients",
   {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -194,7 +201,7 @@ export const patients = pgTable(
 //  RELAÇÃO PACIENTE ↔ PROFISSIONAL
 // =============================================================
 
-export const patientProfessionals = pgTable(
+export const patientProfessionals = sabercuidarSchema.table(
   "patient_professionals",
   {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -220,7 +227,7 @@ export const patientProfessionals = pgTable(
 //  VISITAS DOMICILIARES
 // =============================================================
 
-export const visits = pgTable(
+export const visits = sabercuidarSchema.table(
   "visits",
   {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -263,7 +270,7 @@ export const visits = pgTable(
 //  MEDICAMENTOS
 // =============================================================
 
-export const medications = pgTable(
+export const medications = sabercuidarSchema.table(
   "medications",
   {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -282,7 +289,7 @@ export const medications = pgTable(
 //  PRESCRIÇÕES MÉDICAS
 // =============================================================
 
-export const prescriptions = pgTable(
+export const prescriptions = sabercuidarSchema.table(
   "prescriptions",
   {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -316,7 +323,7 @@ export const prescriptions = pgTable(
 //  REGISTROS DE ADMINISTRAÇÃO MEDICAMENTOSA
 // =============================================================
 
-export const medicationAdministrations = pgTable(
+export const medicationAdministrations = sabercuidarSchema.table(
   "medication_administrations",
   {
     id: uuid("id").primaryKey().defaultRandom(),

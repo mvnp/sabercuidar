@@ -1,12 +1,12 @@
 {
-  "id": "a4a9ae5d-7fec-41c5-b363-99a70c86390f",
+  "id": "b7fcb2e8-8727-49dc-943f-113ec5e735db",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.medication_administrations": {
+    "sabercuidar.medication_administrations": {
       "name": "medication_administrations",
-      "schema": "",
+      "schema": "sabercuidar",
       "columns": {
         "id": {
           "name": "id",
@@ -124,6 +124,7 @@
           "name": "medication_administrations_prescription_id_prescriptions_id_fk",
           "tableFrom": "medication_administrations",
           "tableTo": "prescriptions",
+          "schemaTo": "sabercuidar",
           "columnsFrom": [
             "prescription_id"
           ],
@@ -137,6 +138,7 @@
           "name": "medication_administrations_patient_id_patients_id_fk",
           "tableFrom": "medication_administrations",
           "tableTo": "patients",
+          "schemaTo": "sabercuidar",
           "columnsFrom": [
             "patient_id"
           ],
@@ -150,6 +152,7 @@
           "name": "medication_administrations_administered_by_professionals_id_fk",
           "tableFrom": "medication_administrations",
           "tableTo": "professionals",
+          "schemaTo": "sabercuidar",
           "columnsFrom": [
             "administered_by"
           ],
@@ -166,9 +169,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.medications": {
+    "sabercuidar.medications": {
       "name": "medications",
-      "schema": "",
+      "schema": "sabercuidar",
       "columns": {
         "id": {
           "name": "id",
@@ -245,9 +248,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.patient_professionals": {
+    "sabercuidar.patient_professionals": {
       "name": "patient_professionals",
-      "schema": "",
+      "schema": "sabercuidar",
       "columns": {
         "id": {
           "name": "id",
@@ -338,6 +341,7 @@
           "name": "patient_professionals_patient_id_patients_id_fk",
           "tableFrom": "patient_professionals",
           "tableTo": "patients",
+          "schemaTo": "sabercuidar",
           "columnsFrom": [
             "patient_id"
           ],
@@ -351,6 +355,7 @@
           "name": "patient_professionals_professional_id_professionals_id_fk",
           "tableFrom": "patient_professionals",
           "tableTo": "professionals",
+          "schemaTo": "sabercuidar",
           "columnsFrom": [
             "professional_id"
           ],
@@ -367,9 +372,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.patients": {
+    "sabercuidar.patients": {
       "name": "patients",
-      "schema": "",
+      "schema": "sabercuidar",
       "columns": {
         "id": {
           "name": "id",
@@ -411,7 +416,7 @@
         "gender": {
           "name": "gender",
           "type": "gender",
-          "typeSchema": "public",
+          "typeSchema": "sabercuidar",
           "primaryKey": false,
           "notNull": true,
           "default": "'nao_informado'"
@@ -497,7 +502,7 @@
         "status": {
           "name": "status",
           "type": "patient_status",
-          "typeSchema": "public",
+          "typeSchema": "sabercuidar",
           "primaryKey": false,
           "notNull": true,
           "default": "'ativo'"
@@ -663,9 +668,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.prescriptions": {
+    "sabercuidar.prescriptions": {
       "name": "prescriptions",
-      "schema": "",
+      "schema": "sabercuidar",
       "columns": {
         "id": {
           "name": "id",
@@ -707,7 +712,7 @@
         "route": {
           "name": "route",
           "type": "medication_route",
-          "typeSchema": "public",
+          "typeSchema": "sabercuidar",
           "primaryKey": false,
           "notNull": true,
           "default": "'oral'"
@@ -727,7 +732,7 @@
         "status": {
           "name": "status",
           "type": "prescription_status",
-          "typeSchema": "public",
+          "typeSchema": "sabercuidar",
           "primaryKey": false,
           "notNull": true,
           "default": "'ativa'"
@@ -796,6 +801,7 @@
           "name": "prescriptions_patient_id_patients_id_fk",
           "tableFrom": "prescriptions",
           "tableTo": "patients",
+          "schemaTo": "sabercuidar",
           "columnsFrom": [
             "patient_id"
           ],
@@ -809,6 +815,7 @@
           "name": "prescriptions_prescribed_by_professionals_id_fk",
           "tableFrom": "prescriptions",
           "tableTo": "professionals",
+          "schemaTo": "sabercuidar",
           "columnsFrom": [
             "prescribed_by"
           ],
@@ -822,6 +829,7 @@
           "name": "prescriptions_medication_id_medications_id_fk",
           "tableFrom": "prescriptions",
           "tableTo": "medications",
+          "schemaTo": "sabercuidar",
           "columnsFrom": [
             "medication_id"
           ],
@@ -838,9 +846,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.professionals": {
+    "sabercuidar.professionals": {
       "name": "professionals",
-      "schema": "",
+      "schema": "sabercuidar",
       "columns": {
         "id": {
           "name": "id",
@@ -864,7 +872,7 @@
         "type": {
           "name": "type",
           "type": "professional_type",
-          "typeSchema": "public",
+          "typeSchema": "sabercuidar",
           "primaryKey": false,
           "notNull": true
         },
@@ -969,6 +977,7 @@
           "name": "professionals_user_id_users_id_fk",
           "tableFrom": "professionals",
           "tableTo": "users",
+          "schemaTo": "sabercuidar",
           "columnsFrom": [
             "user_id"
           ],
@@ -993,9 +1002,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.users": {
+    "sabercuidar.users": {
       "name": "users",
-      "schema": "",
+      "schema": "sabercuidar",
       "columns": {
         "id": {
           "name": "id",
@@ -1025,7 +1034,7 @@
         "role": {
           "name": "role",
           "type": "user_role",
-          "typeSchema": "public",
+          "typeSchema": "sabercuidar",
           "primaryKey": false,
           "notNull": true,
           "default": "'viewer'"
@@ -1090,9 +1099,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.visits": {
+    "sabercuidar.visits": {
       "name": "visits",
-      "schema": "",
+      "schema": "sabercuidar",
       "columns": {
         "id": {
           "name": "id",
@@ -1134,7 +1143,7 @@
         "status": {
           "name": "status",
           "type": "visit_status",
-          "typeSchema": "public",
+          "typeSchema": "sabercuidar",
           "primaryKey": false,
           "notNull": true,
           "default": "'agendada'"
@@ -1281,6 +1290,7 @@
           "name": "visits_patient_id_patients_id_fk",
           "tableFrom": "visits",
           "tableTo": "patients",
+          "schemaTo": "sabercuidar",
           "columnsFrom": [
             "patient_id"
           ],
@@ -1294,6 +1304,7 @@
           "name": "visits_professional_id_professionals_id_fk",
           "tableFrom": "visits",
           "tableTo": "professionals",
+          "schemaTo": "sabercuidar",
           "columnsFrom": [
             "professional_id"
           ],
@@ -1312,9 +1323,9 @@
     }
   },
   "enums": {
-    "public.gender": {
+    "sabercuidar.gender": {
       "name": "gender",
-      "schema": "public",
+      "schema": "sabercuidar",
       "values": [
         "masculino",
         "feminino",
@@ -1322,9 +1333,9 @@
         "nao_informado"
       ]
     },
-    "public.medication_route": {
+    "sabercuidar.medication_route": {
       "name": "medication_route",
-      "schema": "public",
+      "schema": "sabercuidar",
       "values": [
         "oral",
         "subcutanea",
@@ -1338,9 +1349,9 @@
         "outro"
       ]
     },
-    "public.patient_status": {
+    "sabercuidar.patient_status": {
       "name": "patient_status",
-      "schema": "public",
+      "schema": "sabercuidar",
       "values": [
         "ativo",
         "inativo",
@@ -1349,9 +1360,9 @@
         "suspeso"
       ]
     },
-    "public.prescription_status": {
+    "sabercuidar.prescription_status": {
       "name": "prescription_status",
-      "schema": "public",
+      "schema": "sabercuidar",
       "values": [
         "ativa",
         "suspensa",
@@ -1359,9 +1370,9 @@
         "cancelada"
       ]
     },
-    "public.professional_type": {
+    "sabercuidar.professional_type": {
       "name": "professional_type",
-      "schema": "public",
+      "schema": "sabercuidar",
       "values": [
         "medico",
         "enfermeiro",
@@ -1375,9 +1386,9 @@
         "outro"
       ]
     },
-    "public.user_role": {
+    "sabercuidar.user_role": {
       "name": "user_role",
-      "schema": "public",
+      "schema": "sabercuidar",
       "values": [
         "admin",
         "coordinator",
@@ -1385,9 +1396,9 @@
         "viewer"
       ]
     },
-    "public.visit_status": {
+    "sabercuidar.visit_status": {
       "name": "visit_status",
-      "schema": "public",
+      "schema": "sabercuidar",
       "values": [
         "agendada",
         "em_andamento",
@@ -1397,7 +1408,9 @@
       ]
     }
   },
-  "schemas": {},
+  "schemas": {
+    "sabercuidar": "sabercuidar"
+  },
   "sequences": {},
   "roles": {},
   "policies": {},
