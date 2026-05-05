@@ -70,13 +70,12 @@ export async function updateVisit(id: string, input: UpdateVisitInput): Promise<
   if (!parsed.success) return { success: false, error: parsed.error.errors[0].message };
 
   try {
-    const { scheduledAt, startedAt, finishedAt, ...rest } = parsed.data;
+    const { startedAt, finishedAt, ...rest } = parsed.data;
     const updateData: Partial<typeof visits.$inferInsert> = { 
       ...rest, 
       updatedAt: new Date() 
     };
 
-    if (scheduledAt) updateData.scheduledAt = new Date(scheduledAt);
     if (startedAt) updateData.startedAt = new Date(startedAt);
     if (finishedAt) updateData.finishedAt = new Date(finishedAt);
 
