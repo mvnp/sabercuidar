@@ -136,6 +136,18 @@ export const professionals = sabercuidarSchema.table(
   ]
 );
 
+export const savedSearches = sabercuidarSchema.table(
+  "saved_searches",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 255 }).notNull(),
+    filters: text("filters").notNull(), // JSON string de { cnaes, municipios }
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("saved_searches_user_idx").on(t.userId)]
+);
+
 // =============================================================
 //  PACIENTES (FICHA MÉDICA)
 // =============================================================
@@ -466,14 +478,7 @@ export type NewMedicationAdministration =
 //  EMPRESAS (PUBLIC SCHEMA)
 // =============================================================
 
-export const empresas = pgTable("empresas", {
-  cnpjBasico: text("cnpj_basico").primaryKey(),
-  razaoSocial: text("razao_social").notNull(),
-  naturezaJuridica: text("natureza_juridica").notNull(),
-  qualificacaoResponsavel: text("qualificacao_responsavel").notNull(),
-  capitalSocial: text("capital_social").notNull(),
-  porteEmpresa: text("porte_empresa").notNull(),
-  enteFederativo: text("ente_federativo").notNull(),
-});
-
-export type Empresa = typeof empresas.$inferSelect;
+export type Empresa = typeof import("./external").empresas.$inferSelect;
+export type Estabelecimento = typeof import("./external").estabelecimentos.$inferSelect;
+export type Municipio = typeof import("./external").municipios.$inferSelect;
+export type Cnae = typeof import("./external").cnaes.$inferSelect;
