@@ -185,11 +185,12 @@ export async function saveSearchAction(name: string, filters: { cnaes?: string; 
     });
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error saving search:", error);
     
     // Auto-create table if missing
-    if (error.message?.includes('relation "sabercuidar.saved_searches" does not exist')) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage.includes('relation "sabercuidar.saved_searches" does not exist')) {
         try {
             await db.execute(sql`
                 CREATE TABLE IF NOT EXISTS sabercuidar.saved_searches (
@@ -200,13 +201,18 @@ export async function saveSearchAction(name: string, filters: { cnaes?: string; 
                     created_at TIMESTAMP NOT NULL DEFAULT NOW()
                 );
             `);
-            // Retry once
-            await db.insert(savedSearches).values({
-                userId: session.user.id,
-                name,
-                filters: JSON.stringify(filters),
-            });
-            return { success: true };
+            
+            // Re-fetch session to ensure we have it for the retry
+            const session = await getAuthSession();
+            if (session) {
+                // Retry once
+                await db.insert(savedSearches).values({
+                    userId: session.user.id,
+                    name,
+                    filters: JSON.stringify(filters),
+                });
+                return { success: true };
+            }
         } catch (innerError) {
             console.error("Failed to auto-create table:", innerError);
         }
@@ -226,11 +232,12 @@ export async function getSavedSearchesAction() {
       .from(savedSearches)
       .where(eq(savedSearches.userId, session.user.id))
       .orderBy(desc(savedSearches.createdAt));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching saved searches:", error);
     
     // Auto-create table if missing
-    if (error.message?.includes('relation "sabercuidar.saved_searches" does not exist')) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage.includes('relation "sabercuidar.saved_searches" does not exist')) {
         try {
             await db.execute(sql`
                 CREATE TABLE IF NOT EXISTS sabercuidar.saved_searches (
