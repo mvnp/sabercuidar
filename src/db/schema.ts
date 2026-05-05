@@ -8,7 +8,6 @@ import {
   boolean,
   integer,
   decimal,
-  pgEnum,
   index,
   pgSchema,
 } from "drizzle-orm/pg-core";

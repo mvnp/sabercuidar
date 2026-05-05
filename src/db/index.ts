@@ -4,7 +4,6 @@ import * as schema from "./schema";
 
 // Reutiliza conexão em desenvolvimento (HMR do Next.js)
 declare global {
-  // eslint-disable-next-line no-var
   var _pgClient: ReturnType<typeof postgres> | undefined;
 }
 

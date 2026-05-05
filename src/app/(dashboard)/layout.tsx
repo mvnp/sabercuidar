@@ -10,8 +10,6 @@ import {
   LogOut, 
   Search, 
   Bell, 
-  User,
-  ChevronDown,
   Menu
 } from "lucide-react";
 import { logoutAction } from "@/actions/auth";

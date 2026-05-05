@@ -118,9 +118,19 @@ export async function updatePatient(
   input: Partial<CreatePatientInput>
 ): Promise<ActionResult<typeof patients.$inferSelect>> {
   try {
+    const { weight, ...rest } = input;
+    const updateData: Partial<typeof patients.$inferInsert> = { 
+      ...rest, 
+      updatedAt: new Date() 
+    };
+    
+    if (weight !== undefined) {
+      updateData.weight = weight?.toString();
+    }
+
     const [updated] = await db
       .update(patients)
-      .set({ ...input, updatedAt: new Date() })
+      .set(updateData)
       .where(eq(patients.id, id))
       .returning();
 

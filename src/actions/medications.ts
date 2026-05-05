@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { medications, prescriptions, medicationAdministrations } from "@/db/schema";
 import { createMedicationSchema, createPrescriptionSchema } from "@/lib/validations";
-import { eq, ilike, desc, count, and } from "drizzle-orm";
+import { eq, ilike, desc, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 type ActionResult<T = void> =

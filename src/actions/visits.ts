@@ -51,9 +51,10 @@ export async function createVisit(input: CreateVisitInput): Promise<ActionResult
   if (!parsed.success) return { success: false, error: parsed.error.errors[0].message };
 
   try {
+    const { scheduledAt, ...rest } = parsed.data;
     const [created] = await db.insert(visits).values({
-      ...parsed.data,
-      scheduledAt: new Date(parsed.data.scheduledAt),
+      ...rest,
+      scheduledAt: new Date(scheduledAt),
     }).returning();
 
     revalidatePath("/dashboard/visitas");
@@ -69,8 +70,18 @@ export async function updateVisit(id: string, input: UpdateVisitInput): Promise<
   if (!parsed.success) return { success: false, error: parsed.error.errors[0].message };
 
   try {
+    const { scheduledAt, startedAt, finishedAt, ...rest } = parsed.data;
+    const updateData: Partial<typeof visits.$inferInsert> = { 
+      ...rest, 
+      updatedAt: new Date() 
+    };
+
+    if (scheduledAt) updateData.scheduledAt = new Date(scheduledAt);
+    if (startedAt) updateData.startedAt = new Date(startedAt);
+    if (finishedAt) updateData.finishedAt = new Date(finishedAt);
+
     const [updated] = await db.update(visits)
-      .set({ ...parsed.data, updatedAt: new Date() })
+      .set(updateData)
       .where(eq(visits.id, id))
       .returning();
 

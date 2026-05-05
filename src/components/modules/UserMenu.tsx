@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { 
   ChevronDown, 
-  User, 
   Settings, 
   LogOut, 
   UserCircle 
@@ -47,10 +47,12 @@ export default function UserMenu({ user }: UserMenuProps) {
             {user.role}
           </div>
         </div>
-        <div className="w-9 h-9 rounded-full border-2 border-[var(--color-brand-200)] p-0.5 overflow-hidden bg-[var(--color-brand-100)] group-hover:border-[var(--color-brand-400)] transition-colors">
-          <img 
+        <div className="w-9 h-9 rounded-full border-2 border-[var(--color-brand-200)] p-0.5 overflow-hidden bg-[var(--color-brand-100)] group-hover:border-[var(--color-brand-400)] transition-colors relative">
+          <Image 
             src={user.avatar} 
             alt="Avatar" 
+            width={36}
+            height={36}
             className="w-full h-full rounded-full object-cover"
           />
         </div>
