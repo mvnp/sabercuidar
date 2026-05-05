@@ -52,7 +52,6 @@ export default function LoginPage() {
                   placeholder="exemplo@email.com"
                   required
                   className="input pl-icon"
-                  defaultValue="admin@sabercuidar.com.br"
                 />
               </div>
               {state?.errors?.email && (
@@ -86,7 +85,6 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   required
                   className="input pl-icon"
-                  defaultValue="123456"
                 />
               </div>
               {state?.errors?.password && (

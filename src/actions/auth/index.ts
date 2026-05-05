@@ -56,7 +56,7 @@ export async function loginAction(prevState: unknown, formData: FormData) {
       };
     }
 
-    // 4. Se tudo estiver correto, cria a sessão (token mockado com o ID do usuário por enquanto)
+    // 4. Se tudo estiver correto, cria a sessão
     const cookieStore = await cookies();
     cookieStore.set("auth_token", user.id, {
       httpOnly: true,
