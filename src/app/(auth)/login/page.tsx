@@ -51,7 +51,7 @@ export default function LoginPage() {
                   type="email"
                   placeholder="exemplo@email.com"
                   required
-                  className="input pl-10"
+                  className="input pl-icon"
                   defaultValue="admin@sabercuidar.com.br"
                 />
               </div>
@@ -85,7 +85,7 @@ export default function LoginPage() {
                   type="password"
                   placeholder="••••••••"
                   required
-                  className="input pl-10"
+                  className="input pl-icon"
                   defaultValue="123456"
                 />
               </div>

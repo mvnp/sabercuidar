@@ -1,8 +1,8 @@
 import { getEmpresas } from "@/actions/empresas";
-import { 
-  Building2, 
-  ChevronLeft, 
-  ChevronRight, 
+import {
+  Building2,
+  ChevronLeft,
+  ChevronRight,
   Search,
   Filter,
   MoreHorizontal,
@@ -27,7 +27,7 @@ export default async function ClientesPage({ searchParams }: PageProps) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-bold text-[var(--color-brand-900)]">
-            Clientes (Empresas)
+            Clientes
           </h1>
           <p className="text-[var(--color-text-muted)] text-sm">
             Visualizando dados da Receita Federal ({pagination.total.toLocaleString()} registros encontrados)
@@ -49,10 +49,10 @@ export default async function ClientesPage({ searchParams }: PageProps) {
       <div className="card p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-light)]" />
-          <input 
-            type="text" 
-            placeholder="Filtrar por Razão Social ou CNPJ..." 
-            className="input pl-10 h-10"
+          <input
+            type="text"
+            placeholder="Filtrar por Razão Social ou CNPJ..."
+            className="input pl-icon h-10"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -121,7 +121,7 @@ export default async function ClientesPage({ searchParams }: PageProps) {
           <div className="text-sm text-[var(--color-text-muted)]">
             Mostrando <span className="font-semibold text-[var(--color-brand-900)]">{((currentPage - 1) * pageSize) + 1}</span> a <span className="font-semibold text-[var(--color-brand-900)]">{Math.min(currentPage * pageSize, pagination.total)}</span> de <span className="font-semibold text-[var(--color-brand-900)]">{pagination.total.toLocaleString()}</span>
           </div>
-          
+
           <div className="flex items-center gap-1.5">
             <Link
               href={currentPage > 1 ? `/clientes?page=${currentPage - 1}` : "#"}
@@ -129,7 +129,7 @@ export default async function ClientesPage({ searchParams }: PageProps) {
             >
               <ChevronLeft className="w-4 h-4" />
             </Link>
-            
+
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => {
                 const pageNum = currentPage <= 3 ? i + 1 : currentPage - 2 + i;

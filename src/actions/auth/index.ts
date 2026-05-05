@@ -45,5 +45,6 @@ export async function loginAction(prevState: unknown, formData: FormData) {
 export async function logoutAction() {
   const cookieStore = await cookies();
   cookieStore.delete("auth_token");
+  cookieStore.delete("sidebar_collapsed");
   redirect("/login");
 }

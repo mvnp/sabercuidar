@@ -1,13 +1,8 @@
 "use server";
 
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { db } from "@/db";
 import { empresas } from "@/db/schema";
-import { count } from "drizzle-orm";
-
-const connectionString = process.env.DATABASE_URL!;
-const client = postgres(connectionString);
-const db = drizzle(client);
+import { count, sql } from "drizzle-orm";
 
 export async function getEmpresas(page: number = 1, pageSize: number = 25) {
   try {
@@ -20,11 +15,21 @@ export async function getEmpresas(page: number = 1, pageSize: number = 25) {
       .limit(pageSize)
       .offset(offset);
 
-    // Buscamos o total aproximado ou real (cuidado com performance em tabelas gigantes)
-    // Para simplificar e seguir a regra de "consumir com cuidado", podemos limitar o total mostrado.
-    // Mas vamos tentar o count(*) real primeiro, se demorar muito em prod o ideal é usar estatísticas do PG.
-    const totalResult = await db.select({ value: count() }).from(empresas);
-    const total = totalResult[0].value;
+    // Otimização: Em tabelas com centenas de milhares de registros, count(*) é lento.
+    // Vamos usar a estimativa do sistema (pg_class) para ser instantâneo.
+    const estimateResult = await db.execute(sql`
+      SELECT reltuples::bigint AS estimate 
+      FROM pg_class 
+      WHERE relname = 'empresas'
+    `);
+    
+    // Fallback para count se a estimativa falhar ou for 0 (tabela pequena)
+    let total = Number((estimateResult[0] as any)?.estimate || 0);
+    
+    if (total === 0) {
+      const totalResult = await db.select({ value: count() }).from(empresas);
+      total = Number(totalResult[0].value);
+    }
 
     return {
       data,

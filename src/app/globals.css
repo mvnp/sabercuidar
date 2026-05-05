@@ -236,6 +236,10 @@ body {
   color: var(--color-text-light);
 }
 
+.pl-icon {
+  padding-left: 3rem !important;
+}
+
 /* --- Badges de status --- */
 .badge {
   display: inline-flex;
