@@ -176,6 +176,11 @@ npm run start
 5. **Componentes Server-first** — use `"use client"` apenas quando necessário (interatividade, hooks)
 6. **Migrations versionadas** — cada mudança de schema gera e commita uma migration
 7. **Variáveis de ambiente** sempre via `.env` — nunca hardcoded
+8. **Padrão de Formulários**:
+   - Todo formulário deve ter máscaras para: CEP, Telefone, WhatsApp, CPF e CNPJ.
+   - A validação deve exibir avisos (hints) logo abaixo de cada input em caso de erro, melhorando a legibilidade.
+   - Campos numéricos não devem aceitar letras (bloqueio via frontend).
+   - Para campos monetários, deve sempre ser aplicado real brasileiro com R$ no frontend porém sempre enviar para o backend no formato de número. Ex: R$ 10,000.00 -> 10000.00
 
 ---
 

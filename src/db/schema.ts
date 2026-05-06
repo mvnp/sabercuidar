@@ -26,6 +26,7 @@ export const userRoleEnum = sabercuidarSchema.enum("user_role", [
   "admin",
   "coordinator",
   "professional",
+  "patient",
   "viewer",
 ]);
 

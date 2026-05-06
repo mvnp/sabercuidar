@@ -1,11 +1,13 @@
 "use server";
 
 import { db } from "@/db";
-import { patients, patientContacts } from "@/db/schema";
+import { patients, patientContacts, users } from "@/db/schema";
 import { count, eq, ilike, or, desc } from "drizzle-orm";
 import { getAuthSession } from "@/lib/auth";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 // =============================================================
 //  VALIDAÇÃO ZOD
@@ -39,7 +41,7 @@ const createPatientSchema = z.object({
   // Seção 2 — Contato do paciente
   phone: z.string().optional().transform((v) => v ? onlyDigits(v) : undefined),
   phone2: z.string().optional().transform((v) => v ? onlyDigits(v) : undefined),
-  email: z.string().email("E-mail inválido").optional().or(z.literal("")),
+  email: z.string().email("E-mail inválido").min(1, "E-mail é obrigatório para criação da conta"),
 
   // Seção 3 — Endereço
   zipCode: z.string().optional().transform((v) => v ? onlyDigits(v) : undefined),
@@ -134,10 +136,14 @@ export async function getPatients(page: number = 1, pageSize: number = 20, searc
 //  CRIAÇÃO DE PACIENTE
 // =============================================================
 
-export async function createPatientAction(formData: FormData) {
+export type CreatePatientResult = 
+  | { success: true; id: string; userEmail: string; temporaryPassword: string; error?: never; fieldErrors?: never }
+  | { success: false; error: string; fieldErrors?: Record<string, string[]>; id?: never; userEmail?: never; temporaryPassword?: never };
+
+export async function createPatientAction(formData: FormData): Promise<CreatePatientResult> {
   try {
     const session = await getAuthSession();
-    if (!session) return { error: "Não autorizado." };
+    if (!session) return { success: false, error: "Não autorizado." };
 
     const raw = Object.fromEntries(formData.entries());
 
@@ -159,41 +165,77 @@ export async function createPatientAction(formData: FormData) {
     });
 
     if (!parsed.success) {
-      const errors = parsed.error.flatten().fieldErrors;
-      const firstError = Object.values(errors)[0]?.[0];
-      return { error: firstError || "Dados inválidos. Verifique o formulário." };
+      return { 
+        success: false,
+        error: "Dados inválidos. Verifique o formulário.",
+        fieldErrors: parsed.error.flatten().fieldErrors 
+      };
     }
 
     const { contact, ...patientData } = parsed.data;
 
-    // Inserir paciente
-    const [newPatient] = await db
-      .insert(patients)
-      .values({
-        ...patientData,
-        weight: patientData.weight?.toString(),
-      })
-      .returning({ id: patients.id });
+    // 1. Verificar se o e-mail já existe na tabela users
+    const [existingUser] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, patientData.email))
+      .limit(1);
 
-    // Inserir contato principal se existir
-    if (contact && hasContact && newPatient) {
-      await db.insert(patientContacts).values({
-        patientId: newPatient.id,
-        name: contact.name,
-        relation: contact.relation,
-        phone: contact.phone,
-        phone2: contact.phone2 || null,
-        email: contact.email || null,
-        isPrimary: true,
-        notes: contact.notes || null,
-      });
+    if (existingUser) {
+      return { 
+        success: false,
+        error: "E-mail já cadastrado no sistema.",
+        fieldErrors: { email: ["Este e-mail já está em uso por outro usuário."] }
+      };
     }
 
+    // 2. Transação para criar Paciente e Usuário
+    const result = await db.transaction(async (tx) => {
+      // 2.1 Criar conta de usuário para o paciente
+      const randomPassword = crypto.randomBytes(8).toString("hex");
+      const passwordHash = await bcrypt.hash(randomPassword, 10);
+
+      await tx
+        .insert(users)
+        .values({
+          name: patientData.name,
+          email: patientData.email,
+          passwordHash,
+          role: "patient",
+          active: true,
+        });
+
+      // 2.2 Inserir paciente
+      const [newPatient] = await tx
+        .insert(patients)
+        .values({
+          ...patientData,
+          weight: patientData.weight?.toString(),
+        })
+        .returning({ id: patients.id });
+
+      // 2.3 Inserir contato principal se existir
+      if (contact && hasContact && newPatient) {
+        await tx.insert(patientContacts).values({
+          patientId: newPatient.id,
+          name: contact.name,
+          relation: contact.relation,
+          phone: contact.phone,
+          phone2: contact.phone2 || null,
+          email: contact.email || null,
+          isPrimary: true,
+          notes: contact.notes || null,
+        });
+      }
+
+      return { id: newPatient.id, userEmail: patientData.email, temporaryPassword: randomPassword };
+    });
+
     revalidatePath("/pacientes");
-    return { success: true, id: newPatient?.id };
+    return { success: true, ...result };
   } catch (error) {
     console.error("Error creating patient:", error);
-    return { error: "Erro ao cadastrar paciente. Tente novamente." };
+    return { success: false, error: "Erro ao cadastrar paciente. Tente novamente." };
   }
 }
 
@@ -268,5 +310,29 @@ export async function updatePatientStatus(
   } catch (err) {
     console.error("[updatePatientStatus]", err);
     return { error: "Erro ao atualizar status." };
+  }
+}
+
+// =============================================================
+//  VERIFICAR DISPONIBILIDADE DE E-MAIL
+// =============================================================
+
+export async function checkEmailUniquenessAction(email: string) {
+  try {
+    const session = await getAuthSession();
+    if (!session) return { error: "Não autorizado." };
+
+    if (!email || !email.includes("@")) return { available: true };
+
+    const [existingUser] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    return { available: !existingUser };
+  } catch (error) {
+    console.error("Error checking email uniqueness:", error);
+    return { error: "Erro ao verificar e-mail." };
   }
 }

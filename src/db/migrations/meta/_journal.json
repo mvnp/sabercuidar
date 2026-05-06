@@ -15,6 +15,13 @@
       "when": 1778067623638,
       "tag": "0001_lowly_preak",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778069004673,
+      "tag": "0002_outgoing_nitro",
+      "breakpoints": true
     }
   ]
 }

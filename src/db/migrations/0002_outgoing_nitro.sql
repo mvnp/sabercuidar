@@ -1,0 +1,1 @@
+ALTER TYPE "sabercuidar"."user_role" ADD VALUE 'patient' BEFORE 'viewer';
