@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { loginAction } from "@/actions/auth";
-import { Heart, Lock, Mail, Loader2, ArrowRight } from "lucide-react";
+import { Heart, Lock, Mail, Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState(loginAction, null);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="min-h-dvh flex items-center justify-center p-4 gradient-brand-soft">
@@ -70,7 +71,7 @@ export default function LoginPage() {
                   Senha
                 </label>
                 <Link
-                  href="#"
+                  href="/redefinir-senha"
                   className="text-xs text-[var(--color-brand-600)] hover:underline"
                 >
                   Esqueceu a senha?
@@ -81,11 +82,18 @@ export default function LoginPage() {
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   required
-                  className="input pl-icon"
+                  className="input pl-icon pr-10"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-brand-400)] hover:text-[var(--color-brand-600)] transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
               {state?.errors?.password && (
                 <p className="text-xs text-danger mt-1">

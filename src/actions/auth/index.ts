@@ -82,3 +82,58 @@ export async function logoutAction() {
   cookieStore.delete("sidebar_collapsed");
   redirect("/login");
 }
+
+const resetPasswordSchema = z.object({
+  email: z.string().email("E-mail inválido"),
+  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "As senhas não coincidem",
+  path: ["confirmPassword"],
+});
+
+export async function resetPasswordAction(prevState: unknown, formData: FormData) {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  const validatedFields = resetPasswordSchema.safeParse({ email, password, confirmPassword });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Erro de validação.",
+    };
+  }
+
+  try {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    if (!user) {
+      return {
+        message: "Usuário não encontrado.",
+      };
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    await db
+      .update(users)
+      .set({ passwordHash, updatedAt: new Date() })
+      .where(eq(users.id, user.id));
+
+    return {
+      success: true,
+      message: "Senha redefinida com sucesso!",
+    };
+  } catch (error) {
+    console.error("Reset password error:", error);
+    return {
+      message: "Ocorreu um erro ao processar a redefinição de senha.",
+    };
+  }
+}
