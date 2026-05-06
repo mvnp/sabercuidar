@@ -158,26 +158,22 @@ export const patients = sabercuidarSchema.table(
     // Dados pessoais
     name: varchar("name", { length: 255 }).notNull(),
     socialName: varchar("social_name", { length: 255 }),
-    cpf: varchar("cpf", { length: 14 }).unique(),
+    cpf: varchar("cpf", { length: 11 }),    // apenas números: 11 dígitos
     rg: varchar("rg", { length: 30 }),
     birthDate: date("birth_date"),
     gender: genderEnum("gender").notNull().default("nao_informado"),
-    // Contato
-    phone: varchar("phone", { length: 20 }),
-    phone2: varchar("phone_2", { length: 20 }),
+    // Contato do próprio paciente
+    phone: varchar("phone", { length: 15 }),  // apenas números
+    phone2: varchar("phone_2", { length: 15 }),
     email: varchar("email", { length: 255 }),
     // Endereço
-    zipCode: varchar("zip_code", { length: 9 }),
+    zipCode: varchar("zip_code", { length: 8 }),  // apenas números: 8 dígitos
     street: varchar("street", { length: 255 }),
     number: varchar("number", { length: 20 }),
     complement: varchar("complement", { length: 100 }),
     neighborhood: varchar("neighborhood", { length: 100 }),
     city: varchar("city", { length: 100 }),
     state: varchar("state", { length: 2 }),
-    // Responsável
-    guardianName: varchar("guardian_name", { length: 255 }),
-    guardianPhone: varchar("guardian_phone", { length: 20 }),
-    guardianRelation: varchar("guardian_relation", { length: 100 }),
     // Dados clínicos
     status: patientStatusEnum("status").notNull().default("ativo"),
     primaryDiagnosis: text("primary_diagnosis"),
@@ -189,9 +185,6 @@ export const patients = sabercuidarSchema.table(
     // Plano de saúde
     healthPlan: varchar("health_plan", { length: 255 }),
     healthPlanNumber: varchar("health_plan_number", { length: 100 }),
-    // Receita Federal
-    rfDataJson: text("rf_data_json"), // Dados crus da Receita Federal
-    rfLastSync: timestamp("rf_last_sync"),
     // Metadados
     admissionDate: date("admission_date"),
     dischargeDate: date("discharge_date"),
@@ -204,6 +197,50 @@ export const patients = sabercuidarSchema.table(
     index("patients_cpf_idx").on(t.cpf),
     index("patients_status_idx").on(t.status),
     index("patients_name_idx").on(t.name),
+  ]
+);
+
+// =============================================================
+//  CONTATOS / RESPONSÁVEIS DO PACIENTE
+// =============================================================
+
+export const contactRelationEnum = sabercuidarSchema.enum("contact_relation", [
+  "conjuge",
+  "filho",
+  "filha",
+  "mae",
+  "pai",
+  "irmao",
+  "irma",
+  "neto",
+  "neta",
+  "sobrinho",
+  "sobrinha",
+  "amigo",
+  "vizinho",
+  "cuidador",
+  "outro",
+]);
+
+export const patientContacts = sabercuidarSchema.table(
+  "patient_contacts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    patientId: uuid("patient_id")
+      .notNull()
+      .references(() => patients.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 255 }).notNull(),
+    relation: contactRelationEnum("relation").notNull().default("outro"),
+    phone: varchar("phone", { length: 15 }).notNull(),  // apenas números
+    phone2: varchar("phone_2", { length: 15 }),
+    email: varchar("email", { length: 255 }),
+    isPrimary: boolean("is_primary").notNull().default(false),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("patient_contacts_patient_idx").on(t.patientId),
+    index("patient_contacts_primary_idx").on(t.patientId, t.isPrimary),
   ]
 );
 
@@ -386,9 +423,17 @@ export const professionalsRelations = relations(
 
 export const patientsRelations = relations(patients, ({ many }) => ({
   patientProfessionals: many(patientProfessionals),
+  contacts: many(patientContacts),
   visits: many(visits),
   prescriptions: many(prescriptions),
   medicationAdministrations: many(medicationAdministrations),
+}));
+
+export const patientContactsRelations = relations(patientContacts, ({ one }) => ({
+  patient: one(patients, {
+    fields: [patientContacts.patientId],
+    references: [patients.id],
+  }),
 }));
 
 export const patientProfessionalsRelations = relations(
@@ -463,6 +508,8 @@ export type Professional = typeof professionals.$inferSelect;
 export type NewProfessional = typeof professionals.$inferInsert;
 export type Patient = typeof patients.$inferSelect;
 export type NewPatient = typeof patients.$inferInsert;
+export type PatientContact = typeof patientContacts.$inferSelect;
+export type NewPatientContact = typeof patientContacts.$inferInsert;
 export type Visit = typeof visits.$inferSelect;
 export type NewVisit = typeof visits.$inferInsert;
 export type Medication = typeof medications.$inferSelect;

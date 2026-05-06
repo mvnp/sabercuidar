@@ -69,6 +69,7 @@ export default function DashboardShell({
           )}
           <SidebarLink href="/dashboard" iconName="LayoutDashboard" label="Dashboard" isCollapsed={isCollapsed} />
           <SidebarLink href="/clientes" iconName="Users" label="Clientes" isCollapsed={isCollapsed} />
+          <SidebarLink href="/pacientes" iconName="Users2" label="Pacientes" isCollapsed={isCollapsed} />
           <SidebarLink href="#" iconName="Calendar" label="Visitas" isCollapsed={isCollapsed} />
           <SidebarLink href="#" iconName="Pill" label="Medicações" isCollapsed={isCollapsed} />
 
