@@ -44,7 +44,7 @@ export default function DashboardShell({
     <div className="flex min-h-dvh bg-[var(--color-brand-50)]">
       {/* ── Sidebar ── */}
       <aside 
-        className={`hidden lg:flex flex-col fixed inset-y-0 left-0 bg-white border-r border-[var(--color-border)] z-50 transition-all duration-300 ${
+        className={`hidden lg:flex flex-col fixed inset-y-0 left-0 bg-white border-r border-[var(--color-border)] z-50 transition-[padding] duration-300 ${
           isCollapsed ? "w-[78px]" : "w-72"
         }`}
       >
@@ -95,7 +95,7 @@ export default function DashboardShell({
 
       {/* ── Main Content Area ── */}
       <main 
-        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
+        className={`flex-1 flex flex-col min-h-screen transition-[padding] duration-300 ${
           isCollapsed ? "lg:pl-[78px]" : "lg:pl-72"
         }`}
       >

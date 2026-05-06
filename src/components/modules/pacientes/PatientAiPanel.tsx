@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
+import { createPortal } from "react-dom";
 import ReactMarkdown from "react-markdown";
 import {
   Bot, X, Loader2, AlertCircle, Maximize2, Minimize2,
@@ -184,6 +185,9 @@ export default function PatientAiPanel({ patient, onClose }: PatientAiPanelProps
   const isOpen = !!patient;
   const age = patient ? calcAge(patient.birthDate) : null;
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  
   // Carregar histórico quando abre o painel
   useEffect(() => {
     if (!patient) return;
@@ -225,20 +229,21 @@ export default function PatientAiPanel({ patient, onClose }: PatientAiPanelProps
     });
   }
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <>
       {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-white/60 backdrop-blur-md z-[998] transition-opacity duration-300 ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
       />
 
-      {/* Painel */}
       <aside
-        className={`fixed top-0 right-0 h-full w-full md:w-[50vw] bg-white shadow-2xl z-50 flex flex-col transition-transform duration-300 ease-in-out ${
-          isOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed inset-y-0 right-0 w-full md:w-[50vw] bg-white shadow-2xl z-[999] flex flex-col transition-all duration-300 ease-in-out ${
+          isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"
         }`}
       >
         {patient && (
@@ -372,6 +377,7 @@ export default function PatientAiPanel({ patient, onClose }: PatientAiPanelProps
           </>
         )}
       </aside>
-    </>
+    </>,
+    document.body
   );
 }

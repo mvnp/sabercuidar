@@ -1,12 +1,11 @@
 "use client";
 
 import { 
-  User, Phone, MapPin, Heart, Shield, Calendar, 
+  User, Phone, MapPin, Heart, Shield, 
   ArrowLeft, Pencil, Bot, Clock, Hash, Mail, 
   ExternalLink, Stethoscope, AlertTriangle, Info,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Patient, PatientContact } from "@/db/schema";
 import { useState } from "react";
 import PatientAiPanel from "./PatientAiPanel";
@@ -95,15 +94,13 @@ function DetailItem({
   value, 
   icon: Icon, 
   className = "",
-  fullWidth = false,
-  isCopyable = false
+  fullWidth = false
 }: { 
   label: string; 
   value: React.ReactNode; 
   icon?: React.ElementType;
   className?: string;
   fullWidth?: boolean;
-  isCopyable?: boolean;
 }) {
   return (
     <div className={`flex flex-col gap-1 ${fullWidth ? "col-span-full" : ""} ${className}`}>
@@ -111,7 +108,7 @@ function DetailItem({
         {Icon && <Icon className="w-3 h-3" />}
         {label}
       </span>
-      <div className="text-sm font-medium text-[var(--color-brand-950)] break-words min-h-[1.25rem]">
+      <div className="text-sm font-medium text-[var(--color-brand-900)] break-words min-h-[1.25rem]">
         {value || <span className="text-[var(--color-text-light)] italic font-normal">Não informado</span>}
       </div>
     </div>
@@ -127,7 +124,6 @@ interface PatientDetailsProps {
 }
 
 export default function PatientDetails({ patient }: PatientDetailsProps) {
-  const router = useRouter();
   const [showAiPanel, setShowAiPanel] = useState(false);
 
   const primaryContact = patient.contacts?.find(c => c.isPrimary) || patient.contacts?.[0];
@@ -150,7 +146,7 @@ export default function PatientDetails({ patient }: PatientDetailsProps) {
               {patient.name.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h1 className="text-2xl font-black text-[var(--color-brand-950)] leading-tight">
+              <h1 className="text-2xl font-bold text-[var(--color-brand-900)] leading-tight">
                 {patient.socialName || patient.name}
               </h1>
               {patient.socialName && (
