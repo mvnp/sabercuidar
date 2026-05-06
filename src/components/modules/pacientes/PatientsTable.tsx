@@ -5,7 +5,7 @@ import { getPatients } from "@/actions/patients";
 import Link from "next/link";
 import {
   Search, UserPlus, RefreshCw, ChevronLeft, ChevronRight,
-  User, MapPin, Phone, Bot,
+  User, MapPin, Phone, Bot, Pencil,
 } from "lucide-react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import PatientAiPanel from "./PatientAiPanel";
@@ -266,17 +266,28 @@ export default function PatientsTable({ initialData, initialPagination, initialS
 
                         {/* Ações */}
                         <td className="px-4 py-3">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedPatient(p);
-                            }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-brand-50)] text-[var(--color-brand-700)] hover:bg-[var(--color-brand-100)] border border-[var(--color-brand-200)] transition-colors whitespace-nowrap"
-                            title="Avaliar com IA"
-                          >
-                            <Bot className="w-3.5 h-3.5" />
-                            Avaliar
-                          </button>
+                          <div className="flex items-center justify-end gap-2">
+                            <Link
+                              href={`/pacientes/${p.id}/editar`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-[var(--color-text-muted)] hover:text-[var(--color-brand-700)] border border-[var(--color-border)] hover:border-[var(--color-brand-200)] transition-colors whitespace-nowrap"
+                              title="Editar Ficha"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                              Editar
+                            </Link>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedPatient(p);
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-brand-50)] text-[var(--color-brand-700)] hover:bg-[var(--color-brand-100)] border border-[var(--color-brand-200)] transition-colors whitespace-nowrap"
+                              title="Avaliar com IA"
+                            >
+                              <Bot className="w-3.5 h-3.5" />
+                              Avaliar
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );

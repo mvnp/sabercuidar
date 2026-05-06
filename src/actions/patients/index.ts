@@ -73,6 +73,10 @@ const createPatientSchema = z.object({
   contact: patientContactSchema.optional(),
 });
 
+const updatePatientSchema = createPatientSchema.extend({
+  id: z.string().uuid(),
+});
+
 // =============================================================
 //  LISTAGEM DE PACIENTES
 // =============================================================
@@ -239,6 +243,143 @@ export async function createPatientAction(formData: FormData): Promise<CreatePat
   }
 }
 
+export type UpdatePatientResult = 
+  | { success: true; error?: never; fieldErrors?: never }
+  | { success: false; error: string; fieldErrors?: Record<string, string[]>; };
+
+export async function updatePatientAction(formData: FormData): Promise<UpdatePatientResult> {
+  try {
+    const session = await getAuthSession();
+    if (!session) return { success: false, error: "Não autorizado." };
+
+    const raw = Object.fromEntries(formData.entries());
+
+    // Montar objeto de contato se existir
+    const contactRaw = {
+      name: raw["contact.name"],
+      relation: raw["contact.relation"],
+      phone: raw["contact.phone"],
+      phone2: raw["contact.phone2"],
+      email: raw["contact.email"],
+      isPrimary: true,
+      notes: raw["contact.notes"],
+    };
+    const hasContact = Boolean(contactRaw.name && contactRaw.phone);
+
+    const parsed = updatePatientSchema.safeParse({
+      ...raw,
+      contact: hasContact ? contactRaw : undefined,
+    });
+
+    if (!parsed.success) {
+      return { 
+        success: false,
+        error: "Dados inválidos. Verifique o formulário.",
+        fieldErrors: parsed.error.flatten().fieldErrors 
+      };
+    }
+
+    const { id, contact, ...patientData } = parsed.data;
+
+    // 1. Verificar se o paciente existe
+    const [existingPatient] = await db
+      .select({ email: patients.email })
+      .from(patients)
+      .where(eq(patients.id, id))
+      .limit(1);
+
+    if (!existingPatient) {
+      return { success: false, error: "Paciente não encontrado." };
+    }
+
+    // 2. Se o e-mail mudou, verificar se o novo e-mail já existe
+    if (patientData.email !== existingPatient.email) {
+      const [emailUsed] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.email, patientData.email))
+        .limit(1);
+
+      if (emailUsed) {
+        return { 
+          success: false,
+          error: "O novo e-mail já está sendo usado por outro usuário.",
+          fieldErrors: { email: ["Este e-mail já está em uso."] }
+        };
+      }
+    }
+
+    // 3. Transação para atualizar
+    await db.transaction(async (tx) => {
+      // 3.1 Atualizar usuário vinculado (se o e-mail original existir na tabela users)
+      if (existingPatient.email) {
+        await tx
+          .update(users)
+          .set({
+            name: patientData.name,
+            email: patientData.email,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.email, existingPatient.email));
+      }
+
+      // 3.2 Atualizar paciente
+      await tx
+        .update(patients)
+        .set({
+          ...patientData,
+          weight: patientData.weight ? patientData.weight.toString() : null,
+          updatedAt: new Date(),
+        })
+        .where(eq(patients.id, id));
+
+      // 3.3 Atualizar ou inserir contato principal
+      if (contact && hasContact) {
+        const [existingContact] = await tx
+          .select({ id: patientContacts.id })
+          .from(patientContacts)
+          .where(or(
+            eq(patientContacts.patientId, id),
+            // eq(patientContacts.isPrimary, true) // Ideally we filter by primary
+          ))
+          .limit(1);
+
+        if (existingContact) {
+          await tx
+            .update(patientContacts)
+            .set({
+              name: contact.name,
+              relation: contact.relation as typeof patientContacts.$inferInsert["relation"],
+              phone: contact.phone,
+              phone2: contact.phone2 || null,
+              email: contact.email || null,
+              notes: contact.notes || null,
+            })
+            .where(eq(patientContacts.id, existingContact.id));
+        } else {
+          await tx.insert(patientContacts).values({
+            patientId: id,
+            name: contact.name,
+            relation: contact.relation as typeof patientContacts.$inferInsert["relation"],
+            phone: contact.phone,
+            phone2: contact.phone2 || null,
+            email: contact.email || null,
+            isPrimary: true,
+            notes: contact.notes || null,
+          });
+        }
+      }
+    });
+
+    revalidatePath("/pacientes");
+    revalidatePath(`/pacientes/${id}`);
+    return { success: true };
+  } catch (error) {
+    console.error("ERROR [updatePatientAction]:", error);
+    return { success: false, error: "Erro ao atualizar paciente." };
+  }
+}
+
 // =============================================================
 //  BUSCA DE CEP (ViaCEP)
 // =============================================================
@@ -281,7 +422,13 @@ export async function getPatientById(id: string) {
       .limit(1);
 
     if (!patient) return { error: "Paciente não encontrado." };
-    return { data: patient };
+
+    const contacts = await db
+      .select()
+      .from(patientContacts)
+      .where(eq(patientContacts.patientId, id));
+
+    return { data: { ...patient, contacts } };
   } catch (err) {
     console.error("[getPatientById]", err);
     return { error: "Erro ao buscar paciente." };
