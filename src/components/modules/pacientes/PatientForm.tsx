@@ -188,7 +188,7 @@ export default function PatientForm() {
 
   if (feedback?.type === "success" && feedback.data) {
     return (
-      <div className="card p-8 text-center space-y-6 animate-fade-in max-w-2xl mx-auto">
+      <div className="card p-8 text-center space-y-6 animate-fade-in">
         <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto">
           <CheckCircle2 className="w-10 h-10 text-emerald-600" />
         </div>

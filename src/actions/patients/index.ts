@@ -32,42 +32,42 @@ const patientContactSchema = z.object({
 const createPatientSchema = z.object({
   // Seção 1 — Identificação
   name: z.string().min(3, "Nome completo é obrigatório"),
-  socialName: z.string().optional(),
-  cpf: z.string().optional().transform((v) => v ? onlyDigits(v) : undefined),
-  rg: z.string().optional(),
-  birthDate: z.string().optional(),
+  socialName: z.string().optional().transform(v => v || null),
+  cpf: z.string().optional().transform((v) => v ? onlyDigits(v) : null),
+  rg: z.string().optional().transform(v => v || null),
+  birthDate: z.string().optional().transform(v => v || null),
   gender: z.enum(["masculino", "feminino", "outro", "nao_informado"]).default("nao_informado"),
 
   // Seção 2 — Contato do paciente
-  phone: z.string().optional().transform((v) => v ? onlyDigits(v) : undefined),
-  phone2: z.string().optional().transform((v) => v ? onlyDigits(v) : undefined),
+  phone: z.string().optional().transform((v) => v ? onlyDigits(v) : null),
+  phone2: z.string().optional().transform((v) => v ? onlyDigits(v) : null),
   email: z.string().email("E-mail inválido").min(1, "E-mail é obrigatório para criação da conta"),
 
   // Seção 3 — Endereço
-  zipCode: z.string().optional().transform((v) => v ? onlyDigits(v) : undefined),
-  street: z.string().optional(),
-  number: z.string().optional(),
-  complement: z.string().optional(),
-  neighborhood: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().max(2).optional(),
+  zipCode: z.string().optional().transform((v) => v ? onlyDigits(v) : null),
+  street: z.string().optional().transform(v => v || null),
+  number: z.string().optional().transform(v => v || null),
+  complement: z.string().optional().transform(v => v || null),
+  neighborhood: z.string().optional().transform(v => v || null),
+  city: z.string().optional().transform(v => v || null),
+  state: z.string().max(2).optional().transform(v => v || null),
 
   // Seção 4 — Dados clínicos
   status: z.enum(["ativo", "inativo", "alta", "obito", "suspeso"]).default("ativo"),
-  primaryDiagnosis: z.string().optional(),
-  secondaryDiagnoses: z.string().optional(),
-  allergies: z.string().optional(),
-  bloodType: z.enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", ""]).optional(),
-  weight: z.string().optional().transform((v) => v ? parseFloat(v.replace(",", ".")) : undefined),
-  height: z.string().optional().transform((v) => v ? parseInt(v) : undefined),
+  primaryDiagnosis: z.string().optional().transform(v => v || null),
+  secondaryDiagnoses: z.string().optional().transform(v => v || null),
+  allergies: z.string().optional().transform(v => v || null),
+  bloodType: z.string().optional().transform(v => v || null),
+  weight: z.string().optional().transform((v) => v ? parseFloat(v.replace(",", ".")) : null),
+  height: z.string().optional().transform((v) => v ? parseInt(v) : null),
 
   // Seção 5 — Plano de saúde
-  healthPlan: z.string().optional(),
-  healthPlanNumber: z.string().optional(),
+  healthPlan: z.string().optional().transform(v => v || null),
+  healthPlanNumber: z.string().optional().transform(v => v || null),
 
   // Seção 6 — Internação
-  admissionDate: z.string().optional(),
-  notes: z.string().optional(),
+  admissionDate: z.string().optional().transform(v => v || null),
+  notes: z.string().optional().transform(v => v || null),
 
   // Contato principal (responsável)
   contact: patientContactSchema.optional(),
@@ -210,7 +210,7 @@ export async function createPatientAction(formData: FormData): Promise<CreatePat
         .insert(patients)
         .values({
           ...patientData,
-          weight: patientData.weight?.toString(),
+          weight: patientData.weight ? patientData.weight.toString() : null,
         })
         .returning({ id: patients.id });
 
@@ -219,7 +219,7 @@ export async function createPatientAction(formData: FormData): Promise<CreatePat
         await tx.insert(patientContacts).values({
           patientId: newPatient.id,
           name: contact.name,
-          relation: contact.relation,
+          relation: contact.relation as typeof patientContacts.$inferInsert["relation"],
           phone: contact.phone,
           phone2: contact.phone2 || null,
           email: contact.email || null,
@@ -234,8 +234,8 @@ export async function createPatientAction(formData: FormData): Promise<CreatePat
     revalidatePath("/pacientes");
     return { success: true, ...result };
   } catch (error) {
-    console.error("Error creating patient:", error);
-    return { success: false, error: "Erro ao cadastrar paciente. Tente novamente." };
+    console.error("DETAILED ERROR [createPatientAction]:", error);
+    return { success: false, error: "Erro ao cadastrar paciente. Verifique os dados e tente novamente." };
   }
 }
 

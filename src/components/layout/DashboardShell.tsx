@@ -79,7 +79,7 @@ export default function DashboardShell({
                 Sistema
               </div>
             )}
-            <SidebarLink href="#" iconName="Settings" label="Configurações" isCollapsed={isCollapsed} />
+            <SidebarLink href="/configuracoes" iconName="Settings" label="Configurações" isCollapsed={isCollapsed} />
           </div>
         </nav>
 

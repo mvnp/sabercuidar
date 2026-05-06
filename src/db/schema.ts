@@ -500,6 +500,69 @@ export const medicationAdministrationsRelations = relations(
 );
 
 // =============================================================
+//  CONFIGURAÇÕES DE IA POR USUÁRIO
+// =============================================================
+
+export const userAiSettings = sabercuidarSchema.table(
+  "user_ai_settings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .unique()
+      .references(() => users.id, { onDelete: "cascade" }),
+    openAiToken: text("openai_token"),
+    openAiModel: varchar("openai_model", { length: 100 }).notNull().default("gpt-4o-mini"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [index("user_ai_settings_user_idx").on(t.userId)]
+);
+
+// =============================================================
+//  LAUDOS DE IA POR PACIENTE
+// =============================================================
+
+export const patientAiEvaluations = sabercuidarSchema.table(
+  "patient_ai_evaluations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    patientId: uuid("patient_id")
+      .notNull()
+      .references(() => patients.id, { onDelete: "cascade" }),
+    requestedBy: uuid("requested_by")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    model: varchar("model", { length: 100 }).notNull(),
+    response: text("response").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("patient_ai_evals_patient_idx").on(t.patientId),
+    index("patient_ai_evals_created_idx").on(t.createdAt),
+  ]
+);
+
+// ─── Relations extras ───
+export const userAiSettingsRelations = relations(userAiSettings, ({ one }) => ({
+  user: one(users, {
+    fields: [userAiSettings.userId],
+    references: [users.id],
+  }),
+}));
+
+export const patientAiEvaluationsRelations = relations(patientAiEvaluations, ({ one }) => ({
+  patient: one(patients, {
+    fields: [patientAiEvaluations.patientId],
+    references: [patients.id],
+  }),
+  requestedBy: one(users, {
+    fields: [patientAiEvaluations.requestedBy],
+    references: [users.id],
+  }),
+}));
+
+// =============================================================
 //  TIPOS DERIVADOS DO SCHEMA (Type Inference)
 // =============================================================
 
@@ -521,6 +584,9 @@ export type MedicationAdministration =
   typeof medicationAdministrations.$inferSelect;
 export type NewMedicationAdministration =
   typeof medicationAdministrations.$inferInsert;
+export type UserAiSettings = typeof userAiSettings.$inferSelect;
+export type PatientAiEvaluation = typeof patientAiEvaluations.$inferSelect;
+
 // =============================================================
 //  EMPRESAS (PUBLIC SCHEMA)
 // =============================================================

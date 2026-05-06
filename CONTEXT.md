@@ -181,6 +181,13 @@ npm run start
    - A validação deve exibir avisos (hints) logo abaixo de cada input em caso de erro, melhorando a legibilidade.
    - Campos numéricos não devem aceitar letras (bloqueio via frontend).
    - Para campos monetários, deve sempre ser aplicado real brasileiro com R$ no frontend porém sempre enviar para o backend no formato de número. Ex: R$ 10,000.00 -> 10000.00
+9. **Largura de Content-Areas**:
+   - Todas as áreas de conteúdo devem seguir a largura padrão estabelecida na rota `/clientes`. 
+   - Não devem ser aplicadas restrições de largura customizadas (ex: `max-w-4xl`) em páginas ou formulários, a menos que seja explicitamente solicitado.
+10. **Padrão de Listagens**:
+   - Todas as listagens (tabelas de dados) devem seguir rigorosamente o padrão estabelecido na rota `/pacientes`.
+   - Isso inclui: toolbar com busca à esquerda, botões de ação à direita, tabela com hover effects e paginação integrada ao rodapé do card.
+   - Não devem ser criados novos layouts de lista ou tabela sem instrução explícita.
 
 ---
 

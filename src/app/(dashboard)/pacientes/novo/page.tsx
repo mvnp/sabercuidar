@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function NovoPacientePage() {
   return (
-    <div className="space-y-5 max-w-4xl">
+    <div className="space-y-5">
       {/* Header */}
       <div>
         <Link
